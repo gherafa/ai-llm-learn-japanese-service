@@ -1,9 +1,10 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM
-
 from modules.utils import generatePromptByLevel, convertToRomaji, translateToEng
+from connectors.hugginFaceConnector import aiPromptConnector
 
 tokenizer = AutoTokenizer.from_pretrained("rinna/japanese-gpt2-small")
 model = AutoModelForCausalLM.from_pretrained("rinna/japanese-gpt2-small")
+MODEL_ID = "moonshotai/Kimi-K2-Instruct-0905"
 
 def generatePracticeText(level="basic"):
   # Generate Result
@@ -39,3 +40,42 @@ def generatePracticeText(level="basic"):
       "romaji": romaji,
       "translation": translation
   }
+
+
+def generatePracticeText(level="basic"):
+    # Generate prompt
+    selectedPrompt = generatePromptByLevel(level)
+    prompt, topic = selectedPrompt
+    constructedInput = {
+        "model": MODEL_ID,
+        "messages": [
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
+        "max_tokens": 60,
+        "temperature": 1.0
+    }
+
+    # Call Hugging Face API
+    result = aiPromptConnector(constructedInput)
+
+    # Clean output to end at first '。'
+    if "。" in result:
+        result = result.split("。")[0] + "。"
+
+    # Convert to Romaji
+    romaji = convertToRomaji(result)
+
+    # Translate to English
+    translation = translateToEng(result)
+
+    return {
+        "level": level,
+        "topic": topic,
+        "source": "api",
+        "practice_text": result,
+        "romaji": romaji,
+        "translation": translation
+    }
