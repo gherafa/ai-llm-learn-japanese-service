@@ -1,7 +1,14 @@
 from pykakasi import kakasi
 from deep_translator import GoogleTranslator
 
+import re
 import random
+
+kakasiLib = kakasi()
+kakasiLib.setMode("J", "a")
+kakasiLib.setMode("K", "a")
+kakasiLib.setMode("H", "a")
+kanjiConverter = kakasiLib.getConverter()
 
 def generatePromptByLevel(level):
   topics = ["食べ物", "旅行", "学校", "天気", "友達", "音楽", "映画", "仕事", "趣味"]
@@ -35,12 +42,7 @@ def generatePromptByLevel(level):
   
   return (resultPrompt, topic)
 
-def convertToRomaji(resultText):
-  kakasiLib = kakasi()
-  kakasiLib.setMode("J", "a")
-  kakasiLib.setMode("K", "a")
-  kakasiLib.setMode("H", "a")
-  
+def convertToRomaji(resultText):  
   result_romaji = []
   for word in kakasiLib.convert(resultText):
       result_romaji.append(word['hepburn'])
@@ -54,5 +56,11 @@ def translateToEng(resultText):
   translation = translator.translate(resultText)
   
   return translation
+
+def removeKanjiPunctuation(text):
+  text = re.sub(r"[。、．,.]", "", text)
+  romaji = "".join([w['hepburn'] for w in kanjiConverter.convert(text)])
+
+  return list(romaji)
   
   

@@ -6,7 +6,7 @@ tokenizer = AutoTokenizer.from_pretrained("rinna/japanese-gpt2-small")
 model = AutoModelForCausalLM.from_pretrained("rinna/japanese-gpt2-small")
 MODEL_ID = "moonshotai/Kimi-K2-Instruct-0905"
 
-def generatePracticeText(level="basic"):
+def generatePracticeTextLocalModel(level="basic"):
   # Generate Result
   selectedPrompt = generatePromptByLevel(level)
   prompt, topic = selectedPrompt
