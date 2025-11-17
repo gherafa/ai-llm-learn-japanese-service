@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 import whisper
 import Levenshtein
 
-from modules.utils import removeKanjiPunctuation
+from modules.utils import removeKanjiPunctuation, convertToRomaji
 
 kakasiLib = kakasi()
 kakasiLib.setMode("J", "a")
@@ -15,16 +15,29 @@ model = whisper.load_model("base")
 
 def transcribe_audio(audioPath: str, language="ja"):
   result = model.transcribe(audioPath, language=language)
-  spoken_text = result["text"].strip()
+  spokenText = result["text"].strip()
 
-  return spoken_text
+  return spokenText
 
 
 def processAndScore(audioPath: str, referenceText: str):
-  spoken_text = transcribe_audio(audioPath)
+  spokenText = transcribe_audio(audioPath)
 
   refChars = removeKanjiPunctuation(referenceText)
-  spokenChars = removeKanjiPunctuation(spoken_text)
+  spokenChars = removeKanjiPunctuation(spokenText)
+  
+  if "。" in referenceText:
+        refSplitResult = referenceText.split("。")[0] + "。"
+  else:
+      refSplitResult = referenceText
+
+  if "。" in spokenText:
+      spokenSplitResult = spokenText.split("。")[0] + "。"
+  else:
+      spokenSplitResult = spokenText
+
+  refRomaji = convertToRomaji(refSplitResult)
+  spokenRomaji = convertToRomaji(spokenSplitResult)
 
   # Compute error distance
   distance = Levenshtein.distance("".join(refChars), "".join(spokenChars))
@@ -33,10 +46,10 @@ def processAndScore(audioPath: str, referenceText: str):
   score = max(0, 100 * (1 - distance / max_len))
 
   payloadResult = {
-    "spoken_text": spoken_text,
+    "spoken_text": spokenText,
     "reference_text": referenceText,
-    "ref_romaji": "".join(refChars),
-    "spoken_romaji": "".join(spokenChars),
+    "ref_romaji": refRomaji,
+    "spoken_romaji": spokenRomaji,
     "score": round(score, 2),
   }
   
