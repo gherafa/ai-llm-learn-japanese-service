@@ -9,7 +9,7 @@ It can generate sentences, convert your speech to text, check your grammar, and 
 - 🎙 Speech-to-text using **Whisper**
 - ✍️ Random Japanese text generation (basic, intermediate, advanced)
 - 🧩 Grammar correction - TBD
-- 🗣 Pronunciation similarity scoring - TBD
+- 🗣 Pronunciation similarity scoring
 - 🔤 Romaji and English translation
 - ⚡ Built with **FastAPI** backend
 
