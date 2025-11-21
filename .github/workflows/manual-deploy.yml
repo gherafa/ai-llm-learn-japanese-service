@@ -20,32 +20,46 @@ jobs:
       uses: actions/checkout@v4
  
     - name: Login to GHCR (Windows PowerShell)
-      run: docker login ghcr.io -u "gherafa" -p "${{ secrets.GHCR_TOKEN }}"
-      shell: powershell
+      run: |
+        docker logout ghcr.io 2>$null
+        docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" -p "${{ secrets.GHCR_TOKEN }}"
+      shell: pwsh
 
     - name: Build Docker image
+      shell: pwsh
       run: |
-        TAG=${{ github.event.inputs.tag || 'latest' }}
-        IMAGE=ghcr.io/${{ secrets.GHCR_USERNAME }}/${{ github.repository }}:${TAG}
-        docker build -t $IMAGE .
-        echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+        $TAG = "${{ github.event.inputs.tag }}"
+        if ([string]::IsNullOrWhiteSpace($TAG)) { $TAG = "latest" }
 
+        $IMAGE = "ghcr.io/${{ secrets.GHCR_USERNAME }}/${{ github.repository }}:$TAG"
+        docker build -t $IMAGE .
+        echo "IMAGE=$IMAGE" | Out-File -FilePath $env:GITHUB_ENV -Append
 
     - name: Push Docker image
+      shell: pwsh
       run: |
-        docker push $IMAGE
-
+        docker push $env:IMAGE
 
     - name: Create GHCR pull secret in cluster (if not exists)
+      shell: pwsh
       env:
         GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
         GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
       run: |
-        kubectl get secret ghcr-secret || kubectl create secret docker-registry ghcr-secret \
-        --docker-server=ghcr.io --docker-username="$GHCR_USERNAME" --docker-password="$GHCR_TOKEN" --docker-email=devnull@example.com
+        $exists = kubectl get secret ghcr-secret --ignore-not-found
+        if (-not $exists) {
+          kubectl create secret docker-registry ghcr-secret `
+            --docker-server=ghcr.io `
+            --docker-username="$env:GHCR_USERNAME" `
+            --docker-password="$env:GHCR_TOKEN" `
+            --docker-email="devnull@example.com"
+        }
 
-
-    - name: Deploy (set image)
+    - name: Deploy
+      shell: pwsh
       run: |
-        kubectl set image deployment/backend backend=$IMAGE --record || kubectl apply -f k8s/deployment.yaml
+        kubectl set image deployment/backend backend=$env:IMAGE --record
+        if ($LASTEXITCODE -ne 0) {
+          kubectl apply -f k8s/deployment.yaml
+        }
         kubectl rollout status deployment/backend --timeout=120s
