@@ -20,6 +20,13 @@ jobs:
       uses: actions/checkout@v4
 
 
+    - name: Debug Secrets
+      run: |
+        echo "Actor: ${{ github.actor }}"
+        echo "Repository Owner: ${{ github.repository_owner }}"
+        echo "Username Secret: ${{ secrets.GHCR_USERNAME }}"
+        echo "Token set? $([[ -n "${{ secrets.GHCR_TOKEN }}" ]] && echo YES || echo NO)" 
+ 
     - name: Login to GHCR
       run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
 
