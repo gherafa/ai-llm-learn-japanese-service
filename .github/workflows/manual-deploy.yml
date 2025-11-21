@@ -31,10 +31,7 @@ jobs:
         $TAG = "${{ github.event.inputs.tag }}"
         if ([string]::IsNullOrWhiteSpace($TAG)) { $TAG = "latest" }
 
-        # Force lowercase for image name
-        $REPO = "${{ github.repository }}" -replace '[A-Z]', { param($m) $m.Value.ToLower() }
-
-        $IMAGE = "ghcr.io/${{ secrets.GHCR_USERNAME }}/$REPO:${TAG}"
+        $IMAGE = "ghcr.io/" + "${{ secrets.GHCR_USERNAME }}" + "/" + ("${{ github.repository }}" -replace '[A-Z]', { param($m) $m.Value.ToLower() }) + ":" + (if ([string]::IsNullOrWhiteSpace("${{ github.event.inputs.tag }}")) { "latest" } else { "${{ github.event.inputs.tag }}" })
         docker build -t $IMAGE .
         echo "IMAGE=$IMAGE" | Out-File -FilePath $env:GITHUB_ENV -Append
 
