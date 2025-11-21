@@ -31,7 +31,7 @@ jobs:
         $TAG = "${{ github.event.inputs.tag }}"
         if ([string]::IsNullOrWhiteSpace($TAG)) { $TAG = "latest" }
 
-        $IMAGE = "ghcr.io/" + "${{ secrets.GHCR_USERNAME }}" + "/" + ("${{ github.repository }}" -replace '[A-Z]', { param($m) $m.Value.ToLower() }) + ":" + (if ([string]::IsNullOrWhiteSpace("${{ github.event.inputs.tag }}")) { "latest" } else { "${{ github.event.inputs.tag }}" })
+        $IMAGE = "ghcr.io/${{ secrets.GHCR_USERNAME }}/${{ github.repository }}:$TAG"
         docker build -t $IMAGE .
         echo "IMAGE=$IMAGE" | Out-File -FilePath $env:GITHUB_ENV -Append
 
