@@ -12,3 +12,4 @@ evaluate
 jiwer
 Levenshtein
 ffmpeg
+python-dotenv

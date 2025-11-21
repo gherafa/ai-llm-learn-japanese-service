@@ -62,4 +62,4 @@ jobs:
         if ($LASTEXITCODE -ne 0) {
           kubectl apply -f k8s/deployment.yaml
         }
-        kubectl rollout status deployment/backend --timeout=120s
+        kubectl rollout status deployment/backend --timeout=300s
