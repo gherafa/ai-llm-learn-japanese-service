@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 import os
 import asyncio
 
-from modules.utils import generatePromptByLevel, convertToRomaji, translateToEng
-from connectors.hugginFaceConnector import aiPromptConnector
+from src.modules.utils import generatePromptByLevel, convertToRomaji, translateToEng
+from src.connectors.hugginFaceConnector import aiPromptConnector
 
 load_dotenv()
 
@@ -47,7 +47,7 @@ async def generatePracticeText(level="basic"):
   }
 
   try:
-    print(f"[INFO] Using local model generation {MODEL_ID}")
+    print(f"[INFO] Using API model generation {MODEL_ID}")
     result = await aiPromptConnector(constructedInput)
     source = "api"
   

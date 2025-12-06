@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 import whisper
 import Levenshtein
 
-from modules.utils import removeKanjiPunctuation, convertToRomaji
+from src.modules.utils import removeKanjiPunctuation, convertToRomaji
 
 kakasiLib = kakasi()
 kakasiLib.setMode("J", "a")
@@ -21,6 +21,7 @@ def transcribe_audio(audioPath: str, language="ja"):
 
 
 def processAndScore(audioPath: str, referenceText: str):
+  print(f"[INFO] Using LOCAL model WHISPER for transcription")
   spokenText = transcribe_audio(audioPath)
 
   refChars = removeKanjiPunctuation(referenceText)

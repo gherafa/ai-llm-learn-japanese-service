@@ -2,8 +2,8 @@ from fastapi import FastAPI, UploadFile, File, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-from modules.textGenerator import generatePracticeText
-from modules.voiceRecognizer import processAndScore
+from src.modules.textGenerator import generatePracticeText
+from src.modules.voiceRecognizer import processAndScore
 
 app = FastAPI(title="Japanese Speaking Coach")
 
